@@ -1,7 +1,6 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
-import com.alexbalmus.euw.common.RoleWrapper;
 import org.apache.commons.lang3.Validate;
 
 public class MoneyTransferContext<A extends Account>
@@ -44,6 +43,12 @@ public class MoneyTransferContext<A extends Account>
         }
     }
 
+    // Potential roles wrapping:
+    Account_PotentialRolesWrapper<A> wrapWithPotentialRoles(final A account)
+    {
+        return () -> account;
+    }
+
     // Use case variations:
 
     public void executeSourceToDestinationTransfer()
@@ -84,47 +89,4 @@ public class MoneyTransferContext<A extends Account>
         SOURCE.transfer(amount, DESTINATION);
     }
 
-
-    // Potential roles wrapping:
-    Account_PotentialRolesWrapper<A> wrapWithPotentialRoles(final A account)
-    {
-        return () -> account;
-    }
-
-
-    // Account role wrappers:
-
-    // Basic marker interface for Account wrapper
-    interface Account_BasicRoleWrapper<A extends Account> extends RoleWrapper<A>
-    {
-    }
-
-    interface Account_SourceRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
-    {
-        String INSUFFICIENT_FUNDS = "Insufficient funds.";
-
-        default void transfer(final Double amount, final Account_DestinationRoleWrapper<? super A> destination)
-        {
-            if (rolePlayer().getBalance() < amount)
-            {
-                throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-            }
-            rolePlayer().decreaseBalanceBy(amount);
-            destination.receive(amount);
-        }
-    }
-
-    interface Account_DestinationRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
-    {
-        default void receive(final Double amount)
-        {
-            rolePlayer().increaseBalanceBy(amount);
-        }
-    }
-
-    // An all-potential-roles wrapper:
-    public interface Account_PotentialRolesWrapper<A extends Account>
-        extends Account_SourceRoleWrapper<A>, Account_DestinationRoleWrapper<A>
-    {
-    }
 }

@@ -43,7 +43,7 @@ public class MoneyTransferContextTest
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), MoneyTransferContext.Account_SourceRoleWrapper.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), Account_SourceRoleWrapper.INSUFFICIENT_FUNDS);
         }
     }
 

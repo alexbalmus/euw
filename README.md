@@ -40,7 +40,7 @@ com.alexbalmus.euw.common.RoleWrapper:
 
 We may also want to have marker interfaces that correspond to specific object types to be wrapped:
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_BasicRoleWrapper:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_BasicRoleWrapper:
 
     interface Account_BasicRoleWrapper<A extends Account> extends RoleWrapper<A>
     {
@@ -48,7 +48,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
 
 Actual roles might look something like this:
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_SourceRoleWrapper:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_SourceRoleWrapper:
 
     interface Account_SourceRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
     {
@@ -65,7 +65,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
         }
     }
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_DestinationRoleWrapper:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_DestinationRoleWrapper:
 
     interface Account_DestinationRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
     {
@@ -75,7 +75,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
         }
     }
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.Account_PotentialRolesWrapper:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_PotentialRolesWrapper:
 
     // An all-potential-roles wrapper:
     public interface Account_PotentialRolesWrapper<A extends Account>
