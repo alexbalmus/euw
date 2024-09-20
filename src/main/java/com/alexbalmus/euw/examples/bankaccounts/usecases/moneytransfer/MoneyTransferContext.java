@@ -1,5 +1,6 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
+import com.alexbalmus.euw.common.RoleWrapper;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 import org.apache.commons.lang3.Validate;
 
@@ -7,9 +8,9 @@ public class MoneyTransferContext<A extends Account>
 {
     private final Double amount;
 
-    private final Account_BasicRoleWrapper<A> sourceWrapper;
-    private final Account_BasicRoleWrapper<A> destinationWrapper;
-    private final Account_BasicRoleWrapper<A> intermediaryWrapper;
+    private final RoleWrapper<A> sourceWrapper;
+    private final RoleWrapper<A> destinationWrapper;
+    private final RoleWrapper<A> intermediaryWrapper;
 
     public MoneyTransferContext(
         final Double amount,
@@ -65,11 +66,11 @@ public class MoneyTransferContext<A extends Account>
     }
 
     private void transferMoney(
-        final Account_BasicRoleWrapper<A> sourceWrapper,
-        final Account_BasicRoleWrapper<A> destinationWrapper,
+        final RoleWrapper<A> sourceWrapper,
+        final RoleWrapper<A> destinationWrapper,
         // The purpose of the following parameter is just to prove that
         // we can check that the same object wrapper has played different roles in different installments:
-        final Account_BasicRoleWrapper<A> previousDestinationWrapper,
+        final RoleWrapper<A> previousDestinationWrapper,
         final Double amount)
     {
         Validate.isTrue(sourceWrapper != destinationWrapper,

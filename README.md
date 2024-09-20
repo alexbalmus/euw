@@ -33,24 +33,17 @@ which would return a reference to the target (role playing) object:
 
 com.alexbalmus.euw.common.RoleWrapper:
 
-    public interface RoleWrapper<T>
+    public interface RoleWrapper<E>
     {
-        T rolePlayer();
+        E rolePlayer();
     }
 
-We may also want to have marker interfaces that correspond to specific object types to be wrapped:
-
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_BasicRoleWrapper:
-
-    interface Account_BasicRoleWrapper<A extends Account> extends RoleWrapper<A>
-    {
-    }
 
 Actual roles might look something like this:
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_SourceRoleWrapper:
 
-    interface Account_SourceRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
+    interface Account_SourceRoleWrapper<A extends Account> extends RoleWrapper<A>
     {
         String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
@@ -67,7 +60,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_SourceRo
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_DestinationRoleWrapper:
 
-    interface Account_DestinationRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
+    interface Account_DestinationRoleWrapper<A extends Account> extends RoleWrapper<A>
     {
         default void receive(final Double amount)
         {

@@ -1,6 +1,10 @@
 package com.alexbalmus.euw.common;
 
-public interface RoleWrapper<T>
+/**
+ * Basic entity role wrapper
+ * @param <E>
+ */
+public interface RoleWrapper<E>
 {
-    T rolePlayer();
+    E rolePlayer();
 }

@@ -1,11 +1,12 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
+import com.alexbalmus.euw.common.RoleWrapper;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 
 /**
  * Source account role wrapper
  */
-interface Account_SourceRoleWrapper<A extends Account> extends Account_BasicRoleWrapper<A>
+interface Account_SourceRoleWrapper<A extends Account> extends RoleWrapper<A>
 {
     String INSUFFICIENT_FUNDS = "Insufficient funds.";
 
