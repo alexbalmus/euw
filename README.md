@@ -8,7 +8,7 @@ Please note that given Java's dynamic limitations and the considerations mention
 
 For a more DCI-savvy approach, check out: 
 
-https://github.com/alexbalmus/dci_java_playground/tree/context_with_role_methods
+https://github.com/alexbalmus/dci_java_playground
 
 DCI is a valuable (but not very well known) use case oriented design & architecture approach 
 and OOP paradigm shift. Due to its particular characteristics, it's rather difficult to implement in a strongly typed 
