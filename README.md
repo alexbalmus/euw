@@ -105,7 +105,7 @@ correspond to all the possible roles that an Account object might play:
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Multirole:
 
-    public interface Account_Multirole<A extends Account>
+    interface Account_Multirole<A extends Account>
         extends MultiroleWrapper<A>, Account_Source<A>, Account_Destination<A>
     {
     }

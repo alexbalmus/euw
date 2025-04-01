@@ -6,7 +6,7 @@ import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 /**
  * An all-potential-roles wrapper combining source and destination roles
  */
-public interface Account_Multirole<A extends Account>
+interface Account_Multirole<A extends Account>
     extends MultiroleWrapper<A>, Account_Source<A>, Account_Destination<A>
 {
 }
