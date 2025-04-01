@@ -1,6 +1,6 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
-import com.alexbalmus.euw.common.RoleWrapper;
+import com.alexbalmus.euw.common.MultiroleWrapper;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 import org.apache.commons.lang3.Validate;
 
@@ -8,9 +8,9 @@ public class MoneyTransferContext<A extends Account>
 {
     private final Double amount;
 
-    private final RoleWrapper<A> sourceWrapper;
-    private final RoleWrapper<A> destinationWrapper;
-    private final RoleWrapper<A> intermediaryWrapper;
+    private final MultiroleWrapper<A> sourceWrapper;
+    private final MultiroleWrapper<A> destinationWrapper;
+    private final MultiroleWrapper<A> intermediaryWrapper;
 
     public MoneyTransferContext(
         final Double amount,
@@ -30,22 +30,22 @@ public class MoneyTransferContext<A extends Account>
 
         // Potential roles wrapping:
         this.sourceWrapper = wrapWithPotentialRoles(sourceAccount);
-        Validate.isTrue(sourceAccount == sourceWrapper.rolePlayer());
+        Validate.isTrue(sourceAccount == sourceWrapper.unwrap());
 
         this.destinationWrapper = wrapWithPotentialRoles(destinationAccount);
-        Validate.isTrue(destinationAccount == destinationWrapper.rolePlayer());
+        Validate.isTrue(destinationAccount == destinationWrapper.unwrap());
 
         this.intermediaryWrapper = intermediaryAccount != null
             ? wrapWithPotentialRoles(intermediaryAccount)
             : null;
         if (intermediaryWrapper != null)
         {
-            Validate.isTrue(intermediaryAccount == intermediaryWrapper.rolePlayer());
+            Validate.isTrue(intermediaryAccount == intermediaryWrapper.unwrap());
         }
     }
 
     // Potential roles wrapping:
-    Account_PotentialRolesWrapper<A> wrapWithPotentialRoles(final A account)
+    Account_Multirole<A> wrapWithPotentialRoles(final A account)
     {
         return () -> account;
     }
@@ -66,11 +66,11 @@ public class MoneyTransferContext<A extends Account>
     }
 
     private void transferMoney(
-        final RoleWrapper<A> sourceWrapper,
-        final RoleWrapper<A> destinationWrapper,
+        final MultiroleWrapper<A> sourceWrapper,
+        final MultiroleWrapper<A> destinationWrapper,
         // The purpose of the following parameter is just to prove that
         // we can check that the same object wrapper has played different roles in different installments:
-        final RoleWrapper<A> previousDestinationWrapper,
+        final MultiroleWrapper<A> previousDestinationWrapper,
         final Double amount)
     {
         Validate.isTrue(sourceWrapper != destinationWrapper,
@@ -79,15 +79,14 @@ public class MoneyTransferContext<A extends Account>
         if (previousDestinationWrapper != null)
         {
             Validate.isTrue(sourceWrapper == previousDestinationWrapper,
-                "Source must match previous destination in the second step of A-B-C transfer scenario.");
+                "Source must match previous destination in this step of A-B-C transfer scenario.");
         }
 
         // Use case roles setup:
-        var SOURCE = (Account_SourceRoleWrapper<A>) sourceWrapper;
-        var DESTINATION = (Account_DestinationRoleWrapper<A>) destinationWrapper;
+        final Account_Source<A> SOURCE = sourceWrapper.assignRole();
+        final Account_Destination<A> DESTINATION = destinationWrapper.assignRole();
 
         // Interaction:
         SOURCE.transfer(amount, DESTINATION);
     }
-
 }

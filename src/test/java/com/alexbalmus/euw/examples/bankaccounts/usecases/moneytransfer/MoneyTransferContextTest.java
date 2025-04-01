@@ -43,20 +43,28 @@ public class MoneyTransferContextTest
         }
         catch (RuntimeException e)
         {
-            assertEquals(e.getMessage(), Account_SourceRoleWrapper.INSUFFICIENT_FUNDS);
+            assertEquals(e.getMessage(), Account_Source.INSUFFICIENT_FUNDS);
         }
     }
 
     @Test
     public void testIdentity()
     {
-        var account1 = new Account(20.0);
-        account1.setId(1L);
+        var account = new Account(20.0);
+        account.setId(1L);
 
         var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-        var sourceAccount = moneyTransferContext.wrapWithPotentialRoles(account1);
 
-        assertEquals(sourceAccount.rolePlayer(), account1);
+        var accountWrapper = moneyTransferContext.wrapWithPotentialRoles(account);
+
+        assertEquals(accountWrapper.unwrap(), account);
+
+        var formerDestination = accountWrapper.<Account_Destination<Account>>assignRole();
+        var currentSource = accountWrapper.<Account_Source<Account>>assignRole();
+
+        assertEquals(formerDestination, currentSource);
+        assertEquals(formerDestination.unwrap(), account);
+        assertEquals(currentSource.unwrap(), account);
     }
 
     static class SpecialAccount extends Account

@@ -6,10 +6,10 @@ import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 /**
  * Destination account role wrapper
  */
-interface Account_DestinationRoleWrapper<A extends Account> extends RoleWrapper<A>
+interface Account_Destination<A extends Account> extends RoleWrapper<A>
 {
     default void receive(final Double amount)
     {
-        rolePlayer().increaseBalanceBy(amount);
+        unwrap().increaseBalanceBy(amount);
     }
 }
