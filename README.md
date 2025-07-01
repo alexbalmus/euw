@@ -21,7 +21,7 @@ In my case, I'm going for some tradeoffs: this is not true DCI, but still aiming
 the valuable features DCI brings.
 
 Prior considerations:
-- Pure Java for roles/role-injection - no third party libraries / frameworks, as they might not be accepted in certain projects
+- Pure Java for roles and role-assignment - no third party libraries / frameworks, as they might not be accepted in certain projects
 - No reflection - this also might not be accepted in some projects, and Java's reflection API is a pain to work with
 - Able to integrate in a mature/legacy code base, i.e., not requiring any changes to existing entities.
 
@@ -116,8 +116,7 @@ the implementation of the unwrap() method will return the wrapped target object.
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.wrapWithPotentialRoles:
 
-    // Potential roles wrapping:
-    Account_Multirole<A> wrapWithPotentialRoles(final A account)
+    static <A extends Account> Account_Multirole<A> wrapWithPotentialRoles(final A account)
     {
         return () -> account;
     }
@@ -132,56 +131,103 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
     private final MultiroleWrapper<A> destinationWrapper;
     ...
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.MoneyTransferContext(java.lang.Double, A, A, A):
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.createWrappersMap:
 
-    // Potential roles wrapping:
-    this.sourceWrapper = wrapWithPotentialRoles(sourceAccount);
-    Validate.isTrue(sourceAccount == sourceWrapper.unwrap());
+    /**
+     * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
+     * @param accountIds the entities to be wrapped
+     * @return the map of wrappers
+     */
+    @SafeVarargs
+    final Map<A, MultiroleWrapper<A>> createWrappersMap(final A... accountIds)
+    {
+        var wrappersMap = new HashMap<A, MultiroleWrapper<A>>();
 
-    this.destinationWrapper = wrapWithPotentialRoles(destinationAccount);
-    Validate.isTrue(destinationAccount == destinationWrapper.unwrap());
-    
-    ...
+        for (var account : accountIds)
+        {
+            wrappersMap.put(account, wrapWithPotentialRoles(account));
+        }
+
+        return wrappersMap;
+    }
+
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.transferFromSourceToDestinationViaTemporary:
+
+    /**
+     * Transfer amount from source to destination while traversing a temporary account
+     * @param source the source account
+     * @param destination the destination account
+     * @param temp the temporary account
+     * @param amount the amount to transfer
+     */
+    public void transferFromSourceToDestinationViaTemporary(
+        final A source, final A destination, final A temp, final Double amount)
+    {
+        var wrappersMap = createWrappersMap(source, destination, temp);
+
+        transferMoney(
+            wrappersMap.get(source),
+            wrappersMap.get(temp),
+            null, // previous destination
+            amount);
+
+        transferMoney(
+            wrappersMap.get(temp),
+            wrappersMap.get(destination),
+            wrappersMap.get(temp), // previous destination
+            amount);
+    }
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.transferMoney:
 
+    /**
+     * The parametrized use case method that performs the setup of necessary roles and kicks off the interaction
+     *
+     * @param wSource the source wrapper
+     * @param wDestination the destination wrapper
+     * @param wPreviousDestination the previous destination wrapper
+     * @param amount the amount to transfer
+     */
     private void transferMoney(
-        final MultiroleWrapper<A> sourceWrapper,
-        final MultiroleWrapper<A> destinationWrapper,
-        // The purpose of the following parameter is just to prove that
-        // we can check that the same object wrapper has played different roles in different installments:
-        final MultiroleWrapper<A> previousDestinationWrapper,
+        final MultiroleWrapper<A> wSource,
+        final MultiroleWrapper<A> wDestination,
+        final MultiroleWrapper<A> wPreviousDestination,
         final Double amount)
     {
-        Validate.isTrue(sourceWrapper != destinationWrapper,
+        Validate.isTrue(wSource != wDestination,
             "Source and destination can't be the same.");
 
-        if (previousDestinationWrapper != null)
+        //--- Use case roles setup:
+        Account_Source<A> source = wSource.assignRole();
+        Account_Destination<A> destination = wDestination.assignRole();
+
+        if (wPreviousDestination != null)
         {
-            Validate.isTrue(sourceWrapper == previousDestinationWrapper,
+            Account_Destination<A> previousDestination = wPreviousDestination.assignRole();
+
+            // Identity check: it's the same wrapper even though different roles were played in different installments:
+            Validate.isTrue(source == previousDestination,
                 "Source must match previous destination in this step of A-B-C transfer scenario.");
+            // Likewise, it's the same underlying (wrapped) object:
+            Validate.isTrue(source.unwrap() == previousDestination.unwrap());
         }
 
-        // Use case roles setup:
-        final Account_Source<A> SOURCE = sourceWrapper.assignRole();
-        final Account_Destination<A> DESTINATION = destinationWrapper.assignRole();
-
-        // Interaction:
-        SOURCE.transfer(amount, DESTINATION);
+        //--- Interaction:
+        source.transfer(amount, destination);
     }
 
-Notice how a particular role is selected using the ".assignRole()" method. Please note that we can choose either styles:
+Notice how a particular role is selected using the ".assignRole()" method. Please note that we can choose either style:
 
-    Account_Source<A> SOURCE = sourceWrapper.assignRole();
+    Account_Source<A> source = wSource.assignRole();
 
     // or:
 
-    var SOURCE = sourceWrapper.<Account_Source<A>>assignRole();
+    var source = wSource.<Account_Source<A>>assignRole();
 
-The important aspect is that after the role assignment, SOURCE == sourceWrapper will hold true. 
+The important aspect is that after the role assignment, source == wSource will hold true. 
 Furthermore, if we were to then select a different role for the same wrapper, the reference equality would still hold:
 
-    SOURCE == sourceWrapper.<Account_Destination<A>>assignRole()
+    source == wSource.<Account_Destination<A>>assignRole()
 
 Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContextTest.testIdentity
 
@@ -189,8 +235,8 @@ Finally, the interaction takes place: while a basic Account object only has meth
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together
 with the underlying entity to create the synergy that mimics the idea of an object gaining additional capabilities:
 
-    // Interaction:
-    SOURCE.transfer(amount, DESTINATION);
+    //--- Interaction:
+    source.transfer(amount, destination);
 
 More info:
 

@@ -17,9 +17,9 @@ public class MoneyTransferContextTest
         var destination = new SpecialAccount(200.0);
         destination.setId(2L);
 
-        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
+        var moneyTransferContext = new MoneyTransferContext<>();
 
-        moneyTransferContext.executeSourceToDestinationTransfer();
+        moneyTransferContext.transferFromSourceToDestination(source, destination, 50.0);
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(destination.getBalance(), 250.0);
@@ -34,11 +34,11 @@ public class MoneyTransferContextTest
         var destination = new Account(200.0);
         destination.setId(2L);
 
-        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
+        var moneyTransferContext = new MoneyTransferContext<>();
 
         try
         {
-            moneyTransferContext.executeSourceToDestinationTransfer();
+            moneyTransferContext.transferFromSourceToDestination(source, destination, 50.0);
             fail("Exception should have been thrown.");
         }
         catch (RuntimeException e)
@@ -53,17 +53,16 @@ public class MoneyTransferContextTest
         var account = new Account(20.0);
         account.setId(1L);
 
-        var moneyTransferContext = new MoneyTransferContext<>(null, null, null);
-
-        var accountWrapper = moneyTransferContext.wrapWithPotentialRoles(account);
+        var accountWrapper = MoneyTransferContext.wrapWithPotentialRoles(account);
 
         assertEquals(accountWrapper.unwrap(), account);
 
-        var formerDestination = accountWrapper.<Account_Destination<Account>>assignRole();
-        var currentSource = accountWrapper.<Account_Source<Account>>assignRole();
+        Account_Destination<Account> previousDestination = accountWrapper.assignRole();
+        Account_Source<Account> currentSource = accountWrapper.assignRole();
 
-        assertEquals(formerDestination, currentSource);
-        assertEquals(formerDestination.unwrap(), account);
+        assertEquals(previousDestination, currentSource);
+        assertEquals(previousDestination.unwrap(), currentSource.unwrap());
+        assertEquals(previousDestination.unwrap(), account);
         assertEquals(currentSource.unwrap(), account);
     }
 

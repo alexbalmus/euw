@@ -1,92 +1,122 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.Validate;
+
 import com.alexbalmus.euw.common.MultiroleWrapper;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
-import org.apache.commons.lang3.Validate;
 
 public class MoneyTransferContext<A extends Account>
 {
-    private final Double amount;
-
-    private final MultiroleWrapper<A> sourceWrapper;
-    private final MultiroleWrapper<A> destinationWrapper;
-    private final MultiroleWrapper<A> intermediaryWrapper;
-
-    public MoneyTransferContext(
-        final Double amount,
-        final A sourceAccount,
-        final A destinationAccount)
-    {
-        this(amount, sourceAccount, destinationAccount, null);
-    }
-
-    public MoneyTransferContext(
-        final Double amount,
-        final A sourceAccount,
-        final A destinationAccount,
-        final A intermediaryAccount)
-    {
-        this.amount = amount;
-
-        // Potential roles wrapping:
-        this.sourceWrapper = wrapWithPotentialRoles(sourceAccount);
-        Validate.isTrue(sourceAccount == sourceWrapper.unwrap());
-
-        this.destinationWrapper = wrapWithPotentialRoles(destinationAccount);
-        Validate.isTrue(destinationAccount == destinationWrapper.unwrap());
-
-        this.intermediaryWrapper = intermediaryAccount != null
-            ? wrapWithPotentialRoles(intermediaryAccount)
-            : null;
-        if (intermediaryWrapper != null)
-        {
-            Validate.isTrue(intermediaryAccount == intermediaryWrapper.unwrap());
-        }
-    }
-
-    // Potential roles wrapping:
-    Account_Multirole<A> wrapWithPotentialRoles(final A account)
+    /**
+     * Static method for wrapping an entity with a multirole wrapper
+     * @param account the entity to wrap
+     * @return a multirole wrapper for the entity
+     * @param <A> the type of the entity
+     */
+    static <A extends Account> Account_Multirole<A> wrapWithPotentialRoles(final A account)
     {
         return () -> account;
     }
 
-    // Use case variations:
-
-    public void executeSourceToDestinationTransfer()
+    /**
+     * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
+     * @param accountIds the entities to be wrapped
+     * @return the map of wrappers
+     */
+    @SafeVarargs
+    final Map<A, MultiroleWrapper<A>> createWrappersMap(final A... accountIds)
     {
-        transferMoney(sourceWrapper, destinationWrapper, null, amount);
-    }
+        var wrappersMap = new HashMap<A, MultiroleWrapper<A>>();
 
-    public void executeSourceToIntermediaryToDestinationTransfer()
-    {
-        Validate.notNull(intermediaryWrapper, "intermediaryAccount must not be null.");
-
-        transferMoney(sourceWrapper, intermediaryWrapper, null, amount);
-        transferMoney(intermediaryWrapper, destinationWrapper, intermediaryWrapper, amount);
-    }
-
-    private void transferMoney(
-        final MultiroleWrapper<A> sourceWrapper,
-        final MultiroleWrapper<A> destinationWrapper,
-        // The purpose of the following parameter is just to prove that
-        // we can check that the same object wrapper has played different roles in different installments:
-        final MultiroleWrapper<A> previousDestinationWrapper,
-        final Double amount)
-    {
-        Validate.isTrue(sourceWrapper != destinationWrapper,
-            "Source and destination can't be the same.");
-
-        if (previousDestinationWrapper != null)
+        for (var account : accountIds)
         {
-            Validate.isTrue(sourceWrapper == previousDestinationWrapper,
-                "Source must match previous destination in this step of A-B-C transfer scenario.");
+            wrappersMap.put(account, wrapWithPotentialRoles(account));
         }
 
-        // Use case roles setup:
-        final Account_Source<A> SOURCE = sourceWrapper.assignRole();
-        final Account_Destination<A> DESTINATION = destinationWrapper.assignRole();
+        return wrappersMap;
+    }
 
-        // Interaction:
-        SOURCE.transfer(amount, DESTINATION);
+    // Use case variations:
+
+    /**
+     * Transfer amount from source to destination
+     * @param source the source account
+     * @param destination the destination account
+     * @param amount the amount to transfer
+     */
+    public void transferFromSourceToDestination(
+        final A source, final A destination, final Double amount)
+    {
+        var wrappersMap = createWrappersMap(source, destination);
+
+        transferMoney(
+            wrappersMap.get(source),
+            wrappersMap.get(destination),
+            null,
+            amount);
+    }
+
+    /**
+     * Transfer amount from source to destination while traversing a temporary account
+     * @param source the source account
+     * @param destination the destination account
+     * @param temp the temporary account
+     * @param amount the amount to transfer
+     */
+    public void transferFromSourceToDestinationViaTemporary(
+        final A source, final A destination, final A temp, final Double amount)
+    {
+        var wrappersMap = createWrappersMap(source, destination, temp);
+
+        transferMoney(
+            wrappersMap.get(source),
+            wrappersMap.get(temp),
+            null, // previous destination
+            amount);
+
+        transferMoney(
+            wrappersMap.get(temp),
+            wrappersMap.get(destination),
+            wrappersMap.get(temp), // previous destination
+            amount);
+    }
+
+    /**
+     * The parametrized use case method that performs the setup of necessary roles and kicks off the interaction
+     *
+     * @param wSource the source wrapper
+     * @param wDestination the destination wrapper
+     * @param wPreviousDestination the previous destination wrapper
+     * @param amount the amount to transfer
+     */
+    private void transferMoney(
+        final MultiroleWrapper<A> wSource,
+        final MultiroleWrapper<A> wDestination,
+        final MultiroleWrapper<A> wPreviousDestination,
+        final Double amount)
+    {
+        Validate.isTrue(wSource != wDestination,
+            "Source and destination can't be the same.");
+
+        //--- Use case roles setup:
+        Account_Source<A> source = wSource.assignRole();
+        Account_Destination<A> destination = wDestination.assignRole();
+
+        if (wPreviousDestination != null)
+        {
+            Account_Destination<A> previousDestination = wPreviousDestination.assignRole();
+
+            // Identity check: it's the same wrapper even though different roles were played in different installments:
+            Validate.isTrue(source == previousDestination,
+                "Source must match previous destination in this step of A-B-C transfer scenario.");
+            // Likewise, it's the same underlying (wrapped) object:
+            Validate.isTrue(source.unwrap() == previousDestination.unwrap());
+        }
+
+        //--- Interaction:
+        source.transfer(amount, destination);
     }
 }

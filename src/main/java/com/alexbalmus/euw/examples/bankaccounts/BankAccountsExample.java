@@ -33,10 +33,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferContext = new MoneyTransferContext<>(50.0, source, destination);
+        var moneyTransferContext = new MoneyTransferContext<>();
 
         System.out.println("Transferring 50 from Source to Destination.");
-        moneyTransferContext.executeSourceToDestinationTransfer();
+        moneyTransferContext.transferFromSourceToDestination(source, destination, 50.0);
         accountsRepository.flush();
 
         System.out.println("Detaching source...");
@@ -73,10 +73,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferContext = new MoneyTransferContext<>(50.0, source, destination, intermediary);
+        var abcMoneyTransferContext = new MoneyTransferContext<>();
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        abcMoneyTransferContext.executeSourceToIntermediaryToDestinationTransfer();
+        abcMoneyTransferContext.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 
         accountsRepository.flush();
 
