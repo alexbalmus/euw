@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class ABCMoneyTransferContextTest
+public class ABCMoneyTransferUseCaseTest
 {
     @Test
     public void testExecuteSourceToDestinationTransfer()
@@ -20,9 +20,9 @@ public class ABCMoneyTransferContextTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var abcMoneyTransferContext = new MoneyTransferContext<>();
+        var abcMoneyTransferUseCase = new MoneyTransferUseCase<>();
 
-        abcMoneyTransferContext.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
+        abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(intermediary.getBalance(), 0.0);

@@ -2,7 +2,7 @@ package com.alexbalmus.euw.examples.bankaccounts;
 
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 import com.alexbalmus.euw.examples.bankaccounts.repositories.AccountsRepository;
-import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext;
+import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +33,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferContext = new MoneyTransferContext<>();
+        var moneyTransferUseCase = new MoneyTransferUseCase<>();
 
         System.out.println("Transferring 50 from Source to Destination.");
-        moneyTransferContext.transferFromSourceToDestination(source, destination, 50.0);
+        moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
         accountsRepository.flush();
 
         System.out.println("Detaching source...");
@@ -73,10 +73,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferContext = new MoneyTransferContext<>();
+        var abcMoneyTransferUseCase = new MoneyTransferUseCase<>();
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        abcMoneyTransferContext.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
+        abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 
         accountsRepository.flush();
 

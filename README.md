@@ -114,7 +114,7 @@ Now, for the actual wrapping performed inside a context, this will be done by me
 anonymous inner class that implements a particular multirole interface; 
 the implementation of the unwrap() method will return the wrapped target object. Since Java 8 we can use a lambda expression:
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.wrapWithPotentialRoles:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.wrapWithPotentialRoles:
 
     static <A extends Account> Account_Multirole<A> wrapWithPotentialRoles(final A account)
     {
@@ -122,16 +122,16 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
     }
 
 
-The context object gathers the objects participating in the use case, assigns the necessary roles to them 
-and then kicks-off the execution:
+The use case object gathers the participating objects, assigns the necessary roles to them 
+and then kicks off the execution:
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase:
 
     private final MultiroleWrapper<A> sourceWrapper;
     private final MultiroleWrapper<A> destinationWrapper;
     ...
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.createWrappersMap:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.createWrappersMap:
 
     /**
      * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
@@ -151,7 +151,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
         return wrappersMap;
     }
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.transferFromSourceToDestinationViaTemporary:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.transferFromSourceToDestinationViaTemporary:
 
     /**
      * Transfer amount from source to destination while traversing a temporary account
@@ -178,7 +178,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferCon
             amount);
     }
 
-com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContext.transferMoney:
+com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.transferMoney:
 
     /**
      * The parametrized use case method that performs the setup of necessary roles and kicks off the interaction
@@ -229,7 +229,7 @@ Furthermore, if we were to then select a different role for the same wrapper, th
 
     source == wSource.<Account_Destination<A>>assignRole()
 
-Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferContextTest.testIdentity
+Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCaseTest.testIdentity
 
 Finally, the interaction takes place: while a basic Account object only has methods related to its own properties, 
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together

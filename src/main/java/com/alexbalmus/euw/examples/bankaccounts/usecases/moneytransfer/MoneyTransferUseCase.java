@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 import com.alexbalmus.euw.common.MultiroleWrapper;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 
-public class MoneyTransferContext<A extends Account>
+public class MoneyTransferUseCase<A extends Account>
 {
     /**
      * Static method for wrapping an entity with a multirole wrapper
