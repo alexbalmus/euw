@@ -49,10 +49,12 @@ which would return a reference to the target (role playing) object (entity):
 
 com.alexbalmus.euw.common.RoleWrapper:
 
+```java
     public interface RoleWrapper<E>
     {
         E unwrap();
     }
+```
 
 This interface will be extended by various "role" interfaces with default methods that contribute behavior.
 
@@ -61,6 +63,7 @@ has a convenient assignRole() method that performs the type casting to the speci
 
 com.alexbalmus.euw.common.MultiroleWrapper:
 
+```java
     public interface MultiroleWrapper<E> extends RoleWrapper<E>
     {
         @SuppressWarnings("unchecked")
@@ -69,11 +72,13 @@ com.alexbalmus.euw.common.MultiroleWrapper:
             return (R) this;
         }
     }
+```
 
 Actual roles might look something like this (notice how the .unwrap() method is used to get access to the underlying object):
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Source:
 
+```java
     interface Account_Source<A extends Account> extends RoleWrapper<A>
     {
         String INSUFFICIENT_FUNDS = "Insufficient funds.";
@@ -88,9 +93,11 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Source:
             destination.receive(amount);
         }
     }
+```
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Destination:
 
+```java
     interface Account_Destination<A extends Account> extends RoleWrapper<A>
     {
         default void receive(final Double amount)
@@ -98,6 +105,7 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Destinat
             unwrap().increaseBalanceBy(amount);
         }
     }
+```
 
 The following is a particular multirole wrapper interface for objects that will wrap an entity of type Account (or subtype); 
 as can be seen, it extends MultiroleWrapper (to access the assignRole() method) and also all the role interfaces that
@@ -105,10 +113,12 @@ correspond to all the possible roles that an Account object might play:
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Multirole:
 
+```java
     interface Account_Multirole<A extends Account>
         extends MultiroleWrapper<A>, Account_Source<A>, Account_Destination<A>
     {
     }
+```
 
 Now, for the actual wrapping performed inside a context, this will be done by means of an object whose type is an 
 anonymous inner class that implements a particular multirole interface; 
@@ -116,23 +126,27 @@ the implementation of the unwrap() method will return the wrapped target object.
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.wrapWithPotentialRoles:
 
+```java
     static <A extends Account> Account_Multirole<A> wrapWithPotentialRoles(final A account)
     {
         return () -> account;
     }
-
+```
 
 The use case object gathers the participating objects, assigns the necessary roles to them 
 and then kicks off the execution:
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase:
 
+```java
     private final MultiroleWrapper<A> sourceWrapper;
     private final MultiroleWrapper<A> destinationWrapper;
     ...
+```
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.createWrappersMap:
 
+```java
     /**
      * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
      * @param accountIds the entities to be wrapped
@@ -150,9 +164,11 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUse
 
         return wrappersMap;
     }
+```
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.transferFromSourceToDestinationViaTemporary:
 
+```java
     /**
      * Transfer amount from source to destination while traversing a temporary account
      * @param source the source account
@@ -177,9 +193,11 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUse
             wrappersMap.get(temp), // previous destination
             amount);
     }
+```
 
 com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase.transferMoney:
 
+```java
     /**
      * The parametrized use case method that performs the setup of necessary roles and kicks off the interaction
      *
@@ -215,19 +233,24 @@ com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUse
         //--- Interaction:
         source.transfer(amount, destination);
     }
+```
 
 Notice how a particular role is selected using the ".assignRole()" method. Please note that we can choose either style:
 
+```java
     Account_Source<A> source = wSource.assignRole();
 
     // or:
 
     var source = wSource.<Account_Source<A>>assignRole();
+```
 
 The important aspect is that after the role assignment, source == wSource will hold true. 
 Furthermore, if we were to then select a different role for the same wrapper, the reference equality would still hold:
 
+```java
     source == wSource.<Account_Destination<A>>assignRole()
+```
 
 Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCaseTest.testIdentity
 
@@ -235,8 +258,11 @@ Finally, the interaction takes place: while a basic Account object only has meth
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together
 with the underlying entity to create the synergy that mimics the idea of an object gaining additional capabilities:
 
+```java
     //--- Interaction:
     source.transfer(amount, destination);
+```
+
 
 More info:
 
