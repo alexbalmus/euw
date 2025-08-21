@@ -28,10 +28,17 @@ public class Main implements CommandLineRunner
         System.out.println("\n\n----- Bank Accounts Example -----");
 
         System.out.println("\nExecuting A to B money transfer scenario: \n");
-        bankAccountsExample.executeAToBMoneyTransferScenario();
+        var accountIdsPair = bankAccountsExample.executeAToBMoneyTransferScenario();
+        System.out.println("\nVerifying A to B money transfer outcome: \n");
+        bankAccountsExample.verifyAToBMoneyTransferOutcome(
+            accountIdsPair.getLeft(), accountIdsPair.getRight());
+
 
         System.out.println("\nExecuting A to B to C money transfer scenario: \n");
-        bankAccountsExample.executeAToBToCMoneyTransferScenario();
+        var accountIdsTriple = bankAccountsExample.executeAToBToCMoneyTransferScenario();
+        System.out.println("\nVerifying A to B to C money transfer outcome: \n");
+        bankAccountsExample.verifyAToBToCMoneyTransferOutcome(
+            accountIdsTriple.getLeft(), accountIdsTriple.getMiddle(), accountIdsTriple.getRight());
     }
 
 }

@@ -8,6 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
+
+import java.util.Objects;
 
 
 @Entity
@@ -42,34 +45,43 @@ public class Account
         balance -= amount;
     }
 
-
-// Implementing equals and hashCode for JPA & Hibernate entities:
-//
-// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-// https://thorben-janssen.com/ultimate-guide-to-implementing-equals-and-hashcode-with-hibernate/
-// https://jpa-buddy.com/blog/hopefully-the-final-article-about-equals-and-hashcode-for-jpa-entities-with-db-generated-ids/
-
     @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (this == o)
         {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass())
+        if (o == null)
         {
             return false;
         }
 
-        Account other = (Account) o;
-        return id != null && id.equals(other.getId());
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+            ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+            : o.getClass();
+
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+
+        if (thisEffectiveClass != oEffectiveClass)
+        {
+            return false;
+        }
+
+        Account account = (Account) o;
+
+        return getId() != null && Objects.equals(getId(), account.getId());
     }
 
     @Override
-    public int hashCode()
+    public final int hashCode()
     {
-        return getClass().hashCode();
+        return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
     }
 }
 

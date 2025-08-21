@@ -1,14 +1,20 @@
 package com.alexbalmus.euw.examples.bankaccounts;
 
-import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
-import com.alexbalmus.euw.examples.bankaccounts.repositories.AccountsRepository;
-import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
+import com.alexbalmus.euw.examples.bankaccounts.repositories.AccountsRepository;
+import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase;
+
 
 @EnableTransactionManagement
 @Transactional(readOnly = true)
@@ -23,7 +29,7 @@ public class BankAccountsExample
     AccountsRepository accountsRepository;
 
     @Transactional
-    public void executeAToBMoneyTransferScenario()
+    public Pair<Long, Long> executeAToBMoneyTransferScenario()
     {
         var source = new Account(100.0);
         accountsRepository.save(source);
@@ -37,29 +43,21 @@ public class BankAccountsExample
 
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
-        accountsRepository.flush();
 
-        System.out.println("Detaching source...");
-        entityManager.detach(source);
+        return Pair.of(source.getId(), destination.getId());
+    }
 
-        System.out.println("Detaching destination...");
-        entityManager.detach(destination);
+    public void verifyAToBMoneyTransferOutcome(Long sourceId, Long destinationId)
+    {
+        var source = accountsRepository.findById(sourceId).orElseThrow();
+        var destination = accountsRepository.findById(destinationId).orElseThrow();
 
-        var retSource = accountsRepository.findById(source.getId()).orElseThrow();
-        var retDestination = accountsRepository.findById(destination.getId()).orElseThrow();
-
-        System.out.println("Same source object references? " + (source == retSource)); // false
-        System.out.println("Same destination object references? " + (destination == retDestination)); // false
-
-        System.out.println("Equal source? " + source.equals(retSource)); // true
-        System.out.println("Equal destination? " + destination.equals(retDestination)); // true
-
-        System.out.println("Source account: " + retSource.getBalance()); // 50.0
-        System.out.println("Destination account: " + retDestination.getBalance()); // 250.0
+        System.out.println("Source account: " + source.getBalance()); // 50.0
+        System.out.println("Destination account: " + destination.getBalance()); // 250.0
     }
 
     @Transactional
-    public void executeAToBToCMoneyTransferScenario()
+    public Triple<Long, Long, Long> executeAToBToCMoneyTransferScenario()
     {
         var source = new Account(100.0);
         accountsRepository.save(source);
@@ -78,18 +76,17 @@ public class BankAccountsExample
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
         abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 
-        accountsRepository.flush();
+        return Triple.of(source.getId(), intermediary.getId(), destination.getId());
+    }
 
-        entityManager.detach(source);
-        entityManager.detach(destination);
-        entityManager.detach(intermediary);
+    public void verifyAToBToCMoneyTransferOutcome(Long sourceId, Long intermediaryId, Long destinationId)
+    {
+        var source = accountsRepository.findById(sourceId).orElseThrow();
+        var intermediary = accountsRepository.findById(intermediaryId).orElseThrow();
+        var destination = accountsRepository.findById(destinationId).orElseThrow();
 
-        var retSource = accountsRepository.findById(source.getId()).orElseThrow();
-        var retIntermediary = accountsRepository.findById(intermediary.getId()).orElseThrow();
-        var retDestination = accountsRepository.findById(destination.getId()).orElseThrow();
-
-        System.out.println("Source account: " + retSource.getBalance()); // 50.0
-        System.out.println("Intermediary account: " + retIntermediary.getBalance()); // 0.0
-        System.out.println("Destination account: " + retDestination.getBalance()); // 250.0
+        System.out.println("Source account: " + source.getBalance()); // 50.0
+        System.out.println("Intermediary account: " + intermediary.getBalance()); // 0.0
+        System.out.println("Destination account: " + destination.getBalance()); // 250.0
     }
 }
