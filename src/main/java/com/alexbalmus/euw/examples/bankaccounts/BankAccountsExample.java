@@ -33,7 +33,7 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferUseCase = new MoneyTransferUseCase<>();
+        var moneyTransferUseCase = new MoneyTransferUseCase();
 
         System.out.println("Transferring 50 from Source to Destination.");
         moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
@@ -73,7 +73,7 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferUseCase = new MoneyTransferUseCase<>();
+        var abcMoneyTransferUseCase = new MoneyTransferUseCase();
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
         abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);

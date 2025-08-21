@@ -20,7 +20,7 @@ public class ABCMoneyTransferUseCaseTest
         var destination = new Account(200.0);
         destination.setId(3L);
 
-        var abcMoneyTransferUseCase = new MoneyTransferUseCase<>();
+        var abcMoneyTransferUseCase = new MoneyTransferUseCase();
 
         abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 

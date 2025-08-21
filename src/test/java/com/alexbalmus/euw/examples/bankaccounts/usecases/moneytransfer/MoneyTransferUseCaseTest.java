@@ -17,7 +17,7 @@ public class MoneyTransferUseCaseTest
         var destination = new SpecialAccount(200.0);
         destination.setId(2L);
 
-        var moneyTransferUseCase = new MoneyTransferUseCase<>();
+        var moneyTransferUseCase = new MoneyTransferUseCase();
 
         moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
 
@@ -34,7 +34,7 @@ public class MoneyTransferUseCaseTest
         var destination = new Account(200.0);
         destination.setId(2L);
 
-        var moneyTransferUseCase = new MoneyTransferUseCase<>();
+        var moneyTransferUseCase = new MoneyTransferUseCase();
 
         try
         {
@@ -57,8 +57,8 @@ public class MoneyTransferUseCaseTest
 
         assertEquals(accountWrapper.unwrap(), account);
 
-        Account_Destination<Account> previousDestination = accountWrapper.assignRole();
-        Account_Source<Account> currentSource = accountWrapper.assignRole();
+        Account_Destination previousDestination = accountWrapper.assignRole();
+        Account_Source currentSource = accountWrapper.assignRole();
 
         assertEquals(previousDestination, currentSource);
         assertEquals(previousDestination.unwrap(), currentSource.unwrap());

@@ -5,31 +5,33 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 
-import com.alexbalmus.euw.common.MultiroleWrapper;
+import com.alexbalmus.euw.common.Multirole;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 
-public class MoneyTransferUseCase<A extends Account>
+public class MoneyTransferUseCase
 {
     /**
      * Static method for wrapping an entity with a multirole wrapper
+     *
      * @param account the entity to wrap
+     *
      * @return a multirole wrapper for the entity
-     * @param <A> the type of the entity
      */
-    static <A extends Account> Account_Multirole<A> wrapWithPotentialRoles(final A account)
+    static Multirole<Account> wrapWithPotentialRoles(final Account account)
     {
-        return () -> account;
+        return (Account_Multirole) () -> account;
     }
 
     /**
      * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
+     *
      * @param accountIds the entities to be wrapped
+     *
      * @return the map of wrappers
      */
-    @SafeVarargs
-    final Map<A, MultiroleWrapper<A>> createWrappersMap(final A... accountIds)
+    final Map<Account, Multirole<Account>> createWrappersMap(final Account... accountIds)
     {
-        var wrappersMap = new HashMap<A, MultiroleWrapper<A>>();
+        var wrappersMap = new HashMap<Account, Multirole<Account>>();
 
         for (var account : accountIds)
         {
@@ -48,7 +50,7 @@ public class MoneyTransferUseCase<A extends Account>
      * @param amount the amount to transfer
      */
     public void transferFromSourceToDestination(
-        final A source, final A destination, final Double amount)
+        final Account source, final Account destination, final Double amount)
     {
         var wrappersMap = createWrappersMap(source, destination);
 
@@ -67,7 +69,7 @@ public class MoneyTransferUseCase<A extends Account>
      * @param amount the amount to transfer
      */
     public void transferFromSourceToDestinationViaTemporary(
-        final A source, final A destination, final A temp, final Double amount)
+        final Account source, final Account destination, final Account temp, final Double amount)
     {
         var wrappersMap = createWrappersMap(source, destination, temp);
 
@@ -93,21 +95,21 @@ public class MoneyTransferUseCase<A extends Account>
      * @param amount the amount to transfer
      */
     private void transferMoney(
-        final MultiroleWrapper<A> wSource,
-        final MultiroleWrapper<A> wDestination,
-        final MultiroleWrapper<A> wPreviousDestination,
+        final Multirole<Account> wSource,
+        final Multirole<Account> wDestination,
+        final Multirole<Account> wPreviousDestination,
         final Double amount)
     {
         Validate.isTrue(wSource != wDestination,
             "Source and destination can't be the same.");
 
         //--- Use case roles setup:
-        Account_Source<A> source = wSource.assignRole();
-        Account_Destination<A> destination = wDestination.assignRole();
+        Account_Source source = wSource.assignRole();
+        Account_Destination destination = wDestination.assignRole();
 
         if (wPreviousDestination != null)
         {
-            Account_Destination<A> previousDestination = wPreviousDestination.assignRole();
+            Account_Destination previousDestination = wPreviousDestination.assignRole();
 
             // Identity check: it's the same wrapper even though different roles were played in different installments:
             Validate.isTrue(source == previousDestination,
