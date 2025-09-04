@@ -1,8 +1,5 @@
 package com.alexbalmus.euw.examples.bankaccounts;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -21,10 +18,6 @@ import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTran
 @Component
 public class BankAccountsExample
 {
-    @PersistenceContext
-    @SuppressWarnings("unused")
-    private EntityManager entityManager;
-
     @Autowired
     AccountsRepository accountsRepository;
 
