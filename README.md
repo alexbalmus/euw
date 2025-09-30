@@ -7,7 +7,7 @@ https://fulloo.info/Documents/ArtimaDCI.html
 If you are new to Eclipse Object Teams, then it's recommended you read the documentation here:
 https://www.eclipse.org/objectteams/documentation.php
 
-This pattern was born out of frustration with the fact that true DCI can't be implemented in plain Java.
+The EUW (Entity - UseCase - Wrapper) pattern was born out of frustration with the fact that true DCI can't be implemented in plain Java.
 
 Some key ideas behind DCI:
 - two orthogonal perspectives: "what the system is" (Data) and "what the system does" (Interaction in a Context)
