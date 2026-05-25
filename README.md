@@ -89,14 +89,8 @@ Actual roles might look something like this (notice how the .unwrap() method is 
 ```java
 interface Account_Source extends Role<Account>
 {
-    String INSUFFICIENT_FUNDS = "Insufficient funds.";
-
     default void transfer(final Double amount, final Account_Destination destination)
     {
-        if (unwrap().getBalance() < amount)
-        {
-            throw new BalanceException(INSUFFICIENT_FUNDS); // Rollback.
-        }
         unwrap().decreaseBalanceBy(amount);
         destination.receive(amount);
     }
@@ -132,10 +126,10 @@ Now, for the actual wrapping performed inside a context, this will be done by me
 anonymous inner class that implements a particular multirole interface; 
 the implementation of the unwrap() method will return the wrapped target object. Since Java 8 we can use a lambda expression:
 
-[MoneyTransferUseCase#wrapWithPotentialRoles](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L20):
+[MoneyTransferUseCase#wrap](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L15):
 
 ```java
-static Multirole<Account> wrapWithPotentialRoles(final Account account)
+static Multirole<Account> wrap(final Account account)
 {
     return (Account_Multirole) () -> account;
 }
@@ -148,95 +142,18 @@ expose the behavior that corresponds to the chosen role.
 The use case object gathers the participating objects, assigns the necessary roles to them 
 and then kicks off the execution:
 
-[MoneyTransferUseCase#createWrappersMap](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L32):
+[MoneyTransferUseCase#transferFromSourceToDestination](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L28):
 
 ```java
-/**
- * Convenience method for creating a map of wrappers instead of calling wrapWithPotentialRoles(...) multiple times
- *
- * @param accountIds the entities to be wrapped
- *
- * @return the map of wrappers
- */
-final Map<Account, Multirole<Account>> createWrappersMap(final Account... accountIds)
+public void transferFromSourceToDestination(
+    final Account source, final Account destination, final Double amount)
 {
-    var wrappersMap = new HashMap<Account, Multirole<Account>>();
-
-    for (var account : accountIds)
-    {
-        wrappersMap.put(account, wrapWithPotentialRoles(account));
-    }
-
-    return wrappersMap;
-}
-```
-
-[MoneyTransferUseCase#transferFromSourceToDestinationViaTemporary](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L71):
-
-```java
-/**
- * Transfer amount from source to destination while traversing a temporary account
- * @param source the source account
- * @param destination the destination account
- * @param temp the temporary account
- * @param amount the amount to transfer
- */
-public void transferFromSourceToDestinationViaTemporary(
-    final Account source, final Account destination, final Account temp, final Double amount)
-{
-    var wrappersMap = createWrappersMap(source, destination, temp);
-
-    transferMoney(
-        wrappersMap.get(source),
-        wrappersMap.get(temp),
-        null, // previous destination
-        amount);
-
-    transferMoney(
-        wrappersMap.get(temp),
-        wrappersMap.get(destination),
-        wrappersMap.get(temp), // previous destination
-        amount);
-}
-```
-
-[MoneyTransferUseCase#transferMoney](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L97):
-
-```java
-/**
- * The parametrized use case method that performs the setup of necessary roles and kicks off the interaction
- *
- * @param wSource the source wrapper
- * @param wDestination the destination wrapper
- * @param wPreviousDestination the previous destination wrapper
- * @param amount the amount to transfer
- */
-private void transferMoney(
-    final Multirole<Account> wSource,
-    final Multirole<Account> wDestination,
-    final Multirole<Account> wPreviousDestination,
-    final Double amount)
-{
-    Validate.isTrue(wSource != wDestination,
-        "Source and destination can't be the same.");
-
     //--- Use case roles setup:
-    Account_Source source = wSource.assignRole();
-    Account_Destination destination = wDestination.assignRole();
-
-    if (wPreviousDestination != null)
-    {
-        Account_Destination previousDestination = wPreviousDestination.assignRole();
-
-        // Identity check: it's the same wrapper even though different roles were played in different installments:
-        Validate.isTrue(source == previousDestination,
-            "Source must match previous destination in this step of A-B-C transfer scenario.");
-        // Likewise, it's the same underlying (wrapped) object:
-        Validate.isTrue(source.unwrap() == previousDestination.unwrap());
-    }
+    Account_Source      wSource      = wrap(source).assignRole();
+    Account_Destination wDestination = wrap(destination).assignRole();
 
     //--- Interaction:
-    source.transfer(amount, destination);
+    wSource.transfer(amount, wDestination);
 }
 ```
 
@@ -250,13 +167,6 @@ Notice how a particular role is selected using the ".assignRole()" method. Pleas
     var source = wSource.<Account_Source>assignRole();
 ```
 
-The important aspect is that after the role assignment, source == wSource will hold true. 
-Furthermore, if we were to then select a different role for the same wrapper, the reference equality would still hold:
-
-```java
-    source == wSource.<Account_Destination>assignRole()
-```
-
 Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCaseTest.testIdentity
 
 Finally, the interaction takes place: while a basic Account object only has methods related to its own properties, 
@@ -268,6 +178,7 @@ with the underlying entity to create the synergy that mimics the idea of an obje
     source.transfer(amount, destination);
 ```
 
+Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MultiroleMoneyTransferUseCase for an example of how the same wrapper can play different roles.
 
 More info:
 

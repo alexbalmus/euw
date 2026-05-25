@@ -11,16 +11,11 @@ public class ABCMoneyTransferUseCaseTest
     @Test
     public void testExecuteSourceToDestinationTransfer()
     {
-        var source = new Account(100.0);
-        source.setId(1L);
+        var source = new Account(1L,100.0);
+        var intermediary = new Account(2L, 0.0);
+        var destination = new Account(3L, 200.0);
 
-        var intermediary = new Account(0.0);
-        intermediary.setId(2L);
-
-        var destination = new Account(200.0);
-        destination.setId(3L);
-
-        var abcMoneyTransferUseCase = new MoneyTransferUseCase();
+        var abcMoneyTransferUseCase = new MultiroleMoneyTransferUseCase();
 
         abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 

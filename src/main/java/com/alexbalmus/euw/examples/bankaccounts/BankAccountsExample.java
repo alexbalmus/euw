@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 import com.alexbalmus.euw.examples.bankaccounts.repositories.AccountsRepository;
+import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MultiroleMoneyTransferUseCase;
 import com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCase;
 
 
@@ -32,10 +33,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var moneyTransferUseCase = new MoneyTransferUseCase();
+        var simpleMoneyTransferUseCase = new MoneyTransferUseCase();
 
         System.out.println("Transferring 50 from Source to Destination.");
-        moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
+        simpleMoneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
 
         return Pair.of(source.getId(), destination.getId());
     }
@@ -64,10 +65,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var abcMoneyTransferUseCase = new MoneyTransferUseCase();
+        var multiroleMoneyTransferUseCase = new MultiroleMoneyTransferUseCase();
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
+        multiroleMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
 
         return Triple.of(source.getId(), intermediary.getId(), destination.getId());
     }

@@ -6,7 +6,7 @@ import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 /**
  * Destination account role wrapper
  */
-interface Account_Destination extends Role<Account>
+public interface Account_Destination extends Role<Account>
 {
     default void receive(final Double amount)
     {
