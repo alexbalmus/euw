@@ -1,24 +1,15 @@
 package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 
+import static com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Multirole.wrap;
+
 import org.apache.commons.lang3.Validate;
 
 import com.alexbalmus.euw.common.Multirole;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 
+
 public class MultiroleMoneyTransferUseCase
 {
-    /**
-     * Static method for wrapping an entity with a multirole wrapper
-     *
-     * @param account the entity to wrap
-     *
-     * @return a multirole wrapper for the entity
-     */
-    static Multirole<Account> wrap(final Account account)
-    {
-        return (Account_Multirole) () -> account;
-    }
-
     /**
      * Transfer amount from source to destination while traversing a temporary account
      * @param source the source account

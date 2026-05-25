@@ -111,7 +111,9 @@ interface Account_Destination extends Role<Account>
 
 The following is a particular multirole wrapper interface for objects that will wrap an entity of type Account; 
 as can be seen, it extends Multirole (to access the assignRole() method) and also all the role interfaces that
-correspond to all the possible roles that might be played:
+correspond to all the possible roles that might be played.
+It also features a static method called wrap(...) for the actual wrapping performed inside a context. The wrapping is done by means of an object whose type is an anonymous inner class that implements the multirole interface;
+the implementation of the unwrap() method will return the wrapped target object (since Java 8, we can use a lambda expression to achieve this):
 
 [Account_Multirole](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/Account_Multirole.java):
 
@@ -119,19 +121,10 @@ correspond to all the possible roles that might be played:
 interface Account_Multirole
     extends Multirole<Account>, Account_Source, Account_Destination
 {
-}
-```
-
-Now, for the actual wrapping performed inside a context, this will be done by means of an object whose type is an 
-anonymous inner class that implements a particular multirole interface; 
-the implementation of the unwrap() method will return the wrapped target object. Since Java 8 we can use a lambda expression:
-
-[MoneyTransferUseCase#wrap](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L15):
-
-```java
-static Multirole<Account> wrap(final Account account)
-{
-    return (Account_Multirole) () -> account;
+    static Multirole<Account> wrap(final Account account)
+    {
+        return (Account_Multirole) () -> account;
+    }
 }
 ```
 
@@ -142,7 +135,7 @@ expose the behavior that corresponds to the chosen role.
 The use case object gathers the participating objects, assigns the necessary roles to them 
 and then kicks off the execution:
 
-[MoneyTransferUseCase#transferFromSourceToDestination](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L28):
+[MoneyTransferUseCase#transferFromSourceToDestination](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L15):
 
 ```java
 public void transferFromSourceToDestination(
@@ -167,7 +160,7 @@ Notice how a particular role is selected using the ".assignRole()" method. Pleas
     var source = wSource.<Account_Source>assignRole();
 ```
 
-Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L47)
+Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L48)
 
 Finally, the interaction takes place: while a basic Account object only has methods related to its own properties, 
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together

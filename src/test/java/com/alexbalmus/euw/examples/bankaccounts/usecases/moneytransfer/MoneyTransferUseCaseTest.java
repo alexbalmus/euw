@@ -3,6 +3,7 @@ package com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer;
 import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 import org.testng.annotations.Test;
 
+import static com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.Account_Multirole.wrap;
 import static org.testng.Assert.*;
 
 @Test
@@ -48,7 +49,7 @@ public class MoneyTransferUseCaseTest
     {
         var account = new Account(1L, 20.0);
 
-        var accountWrapper = MultiroleMoneyTransferUseCase.wrap(account);
+        var accountWrapper = wrap(account);
 
         assertEquals(accountWrapper.unwrap(), account);
 
