@@ -167,7 +167,7 @@ Notice how a particular role is selected using the ".assignRole()" method. Pleas
     var source = wSource.<Account_Source>assignRole();
 ```
 
-Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MoneyTransferUseCaseTest.testIdentity
+Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L47)
 
 Finally, the interaction takes place: while a basic Account object only has methods related to its own properties, 
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together
@@ -178,14 +178,16 @@ with the underlying entity to create the synergy that mimics the idea of an obje
     source.transfer(amount, destination);
 ```
 
-Also see com.alexbalmus.euw.examples.bankaccounts.usecases.moneytransfer.MultiroleMoneyTransferUseCase for an example of how the same wrapper can play different roles.
+Also see [MultiroleMoneyTransferUseCase](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MultiroleMoneyTransferUseCase.java) for an example of how the same wrapper can play different roles.
 
-More info:
+References:
 
 https://fulloo.info/ 
 
 https://fulloo.info/Documents/ArtimaDCI.html
 
 https://en.wikipedia.org/wiki/Data,_context_and_interaction
+
+https://www.eclipse.org/objectteams/documentation.php
 
 https://gist.github.com/kt3k/8312661
