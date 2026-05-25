@@ -14,9 +14,9 @@ public class MultiroleMoneyTransferUseCase
      *
      * @return a multirole wrapper for the entity
      */
-    static Account_Multirole wrap(final Account account)
+    static Multirole<Account> wrap(final Account account)
     {
-        return () -> account;
+        return (Account_Multirole) () -> account;
     }
 
     /**
