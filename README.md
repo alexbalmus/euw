@@ -7,6 +7,11 @@ https://fulloo.info/Documents/ArtimaDCI.html
 If you are new to Eclipse Object Teams, then it's recommended you read the documentation here:
 https://www.eclipse.org/objectteams/documentation.php
 
+Running the example:
+- tested with JDK 25 & Maven 3.9.15
+- building: mvn package
+- running: mvn spring-boot:run
+
 The EUW (Entity - UseCase - Wrapper) pattern was born out of frustration with the fact that true DCI can't be implemented in plain Java.
 
 Some key ideas behind DCI:
