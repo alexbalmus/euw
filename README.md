@@ -12,7 +12,7 @@ Running the example:
 - building: mvn package
 - running: mvn spring-boot:run
 
-The EUW (Entity - UseCase - Wrapper) pattern was born out of frustration with the fact that true DCI can't be implemented in plain Java.
+EUW (Entity - UseCase - Wrapper) was born out of frustration with the fact that true DCI can't be implemented in plain Java.
 
 Some key ideas behind DCI:
 - two orthogonal perspectives: "what the system is" (Data) and "what the system does" (Interaction in a Context)
