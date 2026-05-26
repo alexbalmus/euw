@@ -28,7 +28,7 @@ allow to add additional behavior to existing objects, or to mimic this while ret
 https://fulloo.info/doku.php?id=can_i_use_dci_in_java
 
 One possible solution is the use of extension methods using a third party library like Lombok, which was explored here:
-https://github.com/alexbalmus/dci_java_playground/tree/ext_method_lombok_approach
+https://github.com/alexbalmus/dci_java_playground
 
 In this project though, we take a "rebellious" approach: instead of avoiding the wrapper, we aim to embrace it in an open, explicit and safe way.
 
