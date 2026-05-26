@@ -158,11 +158,11 @@ public void transferFromSourceToDestination(
 Notice how a particular role is selected using the ".assignRole()" method. Please note that we can choose either style:
 
 ```java
-    Account_Source source = wSource.assignRole();
+    Account_Source wSource = wrap(source).assignRole();
 
     // or:
 
-    var source = wSource.<Account_Source>assignRole();
+    var wSource = wrap(source).<Account_Source>assignRole();
 ```
 
 Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L48)
@@ -173,7 +173,7 @@ with the underlying entity to create the synergy that mimics the idea of an obje
 
 ```java
     //--- Interaction:
-    source.transfer(amount, destination);
+    wSource.transfer(amount, wDestination);
 ```
 
 Also see [MultiroleMoneyTransferUseCase](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MultiroleMoneyTransferUseCase.java) for an example of how the same wrapper can play different roles.
