@@ -37,8 +37,7 @@ Measures taken to alleviate the issues related to using a wrapper (which are usu
 in order to avoid accidental (unwanted) use of Polymorphism
 - the intent is explicit: there's an ".unwrap()" method that returns a reference to the wrapped object when needed
 - each entity will be wrapped only once by a single "multirole wrapper" that will expose one of its capabilities (roles) 
-when required; this way the wrapper will also act as on object representative;  
-it would be stretching it too far to say it's a "surrogate" identity but there will always be this 
+when required; this way the wrapper will also act as an object representative, i.e. there will always be this
 entity-wrapper correspondence for the lifetime of the use case execution, regardless of the different roles that 
 might be enabled for that wrapper in different installments of the same use case execution
 
@@ -70,15 +69,15 @@ has a convenient assignRole() method that performs the type casting to the speci
 ```java
 public interface Multirole<E> extends Role<E>
 {
-    default <R extends Role<E>> R assignRole()
+    default <R extends Role<E>> R assignRole(final Class<R> roleType)
     {
         try
         {
-            return (R) this;
+            return roleType.cast(this);
         }
         catch (ClassCastException e)
         {
-            throw new IllegalStateException("Attempting to play an invalid role.");
+            throw new IllegalStateException("Attempting to play an invalid role: " + roleType.getName(), e);
         }
     }
 }
@@ -86,6 +85,8 @@ public interface Multirole<E> extends Role<E>
 
 In the provided example, [Account](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/entities/Account.java)
 is a simple JPA entity which will play different roles (with the help of a "multi-role" wrapper).
+
+Disclaimer: this example is solely for the purpose of showcasing EUW in a simple way and therefore it should not be viewed as a reference implementation for an actual banking system.
 
 Actual roles might look something like this (notice how the .unwrap() method is used to get access to the underlying object):
 
@@ -96,6 +97,11 @@ interface Account_Source extends Role<Account>
 {
     default void transfer(final Double amount, final Account_Destination destination)
     {
+        if (unwrap() == destination.unwrap())
+        {
+            throw new IllegalArgumentException("Source and destination can't be the same.");
+        }
+
         unwrap().decreaseBalanceBy(amount);
         destination.receive(amount);
     }
@@ -147,25 +153,21 @@ public void transferFromSourceToDestination(
     final Account source, final Account destination, final Double amount)
 {
     //--- Use case roles setup:
-    Account_Source      wSource      = wrap(source).assignRole();
-    Account_Destination wDestination = wrap(destination).assignRole();
+    var rSource      = wrap(source).assignRole(Account_Source.class);
+    var rDestination = wrap(destination).assignRole(Account_Destination.class);
 
     //--- Interaction:
-    wSource.transfer(amount, wDestination);
+    rSource.transfer(amount, rDestination);
 }
 ```
 
-Notice how a particular role is selected using the ".assignRole()" method. Please note that we can choose either style:
+Notice how a particular role is selected using the ".assignRole()" method:
 
 ```java
-    Account_Source wSource = wrap(source).assignRole();
-
-    // or:
-
-    var wSource = wrap(source).<Account_Source>assignRole();
+    var rSource = wrap(source).assignRole(Account_Source.class);
 ```
 
-Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L48)
+Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L51)
 
 Finally, the interaction takes place: while a basic Account object only has methods related to its own properties, 
 the wrapper brings interaction to the table (in this case transferring an amount to another account) and works together
@@ -173,7 +175,7 @@ with the underlying entity to create the synergy that mimics the idea of an obje
 
 ```java
     //--- Interaction:
-    wSource.transfer(amount, wDestination);
+    rSource.transfer(amount, rDestination);
 ```
 
 Also see [MultiroleMoneyTransferUseCase](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MultiroleMoneyTransferUseCase.java) for an example of how the same wrapper can play different roles.

@@ -16,11 +16,11 @@ public class MoneyTransferUseCase
         final Account source, final Account destination, final Double amount)
     {
         //--- Use case roles setup:
-        Account_Source      wSource      = wrap(source).assignRole();
-        Account_Destination wDestination = wrap(destination).assignRole();
+        var rSource      = wrap(source).assignRole(Account_Source.class);
+        var rDestination = wrap(destination).assignRole(Account_Destination.class);
 
         //--- Interaction:
-        wSource.transfer(amount, wDestination);
+        rSource.transfer(amount, rDestination);
     }
 
 }

@@ -19,6 +19,7 @@ import com.alexbalmus.euw.examples.bankaccounts.exceptions.BalanceException;
 public class Account
 {
     public static final String INSUFFICIENT_FUNDS = "Insufficient funds.";
+    public static final String INVALID_AMOUNT = "Amount must be a positive finite value.";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -46,11 +47,13 @@ public class Account
 
     public void increaseBalanceBy(final Double amount)
     {
+        validateAmount(amount);
         balance += amount;
     }
 
     public void decreaseBalanceBy(final Double amount)
     {
+        validateAmount(amount);
         if (balance < amount)
         {
             throw new BalanceException(INSUFFICIENT_FUNDS);
@@ -66,6 +69,14 @@ public class Account
     public Double getBalance()
     {
         return balance;
+    }
+
+    private void validateAmount(final Double amount)
+    {
+        if (amount == null || amount <= 0 || amount.isNaN() || amount.isInfinite())
+        {
+            throw new IllegalArgumentException(INVALID_AMOUNT);
+        }
     }
 
 

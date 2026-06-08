@@ -55,22 +55,22 @@ public class MultiroleMoneyTransferUseCase
             "Source and destination can't be the same.");
 
         //--- Use case roles setup:
-        Account_Source      source      = wSource.assignRole();
-        Account_Destination destination = wDestination.assignRole();
+        var rSource      = wSource.assignRole(Account_Source.class);
+        var rDestination = wDestination.assignRole(Account_Destination.class);
 
         if (wPreviousDestination != null)
         {
-            Account_Destination previousDestination = wPreviousDestination.assignRole();
+            var rPreviousDestination = wPreviousDestination.assignRole(Account_Destination.class);
 
             // Identity check: it's the same wrapper even though different roles were played in different installments:
-            Validate.isTrue(source == previousDestination,
+            Validate.isTrue(rSource == rPreviousDestination,
                 "Source must match previous destination in this step of A-B-C transfer scenario.");
 
             // Likewise, it's the same underlying (wrapped) object:
-            Validate.isTrue(source.unwrap() == previousDestination.unwrap());
+            Validate.isTrue(rSource.unwrap() == rPreviousDestination.unwrap());
         }
 
         //--- Interaction:
-        source.transfer(amount, destination);
+        rSource.transfer(amount, rDestination);
     }
 }
