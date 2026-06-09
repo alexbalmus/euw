@@ -6,7 +6,7 @@ import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 /**
  * Source account role wrapper
  */
-public interface Account_Source extends Role<Account>
+interface Account_Source extends Role<Account>
 {
     default void transfer(final Double amount, final Account_Destination destination)
     {
