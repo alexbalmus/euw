@@ -19,9 +19,9 @@ public class MoneyTransferUseCaseTest
 
         var destination = new SpecialAccount(2L, 200.0);
 
-        var moneyTransferUseCase = new MoneyTransferUseCase();
+        var moneyTransferUseCase = new MoneyTransferUseCase(source, destination);
 
-        moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
+        moneyTransferUseCase.transferFromSourceToDestination(50.0);
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(destination.getBalance(), 250.0);
@@ -34,11 +34,11 @@ public class MoneyTransferUseCaseTest
 
         var destination = new Account(1L, 200.0);
 
-        var moneyTransferUseCase = new MoneyTransferUseCase();
+        var moneyTransferUseCase = new MoneyTransferUseCase(source, destination);
 
         try
         {
-            moneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
+            moneyTransferUseCase.transferFromSourceToDestination(50.0);
             fail("Exception should have been thrown.");
         }
         catch (RuntimeException e)
@@ -81,11 +81,11 @@ public class MoneyTransferUseCaseTest
     public void testRejectSameSourceAndDestination()
     {
         var account = new Account(1L, 100.0);
-        var moneyTransferUseCase = new MoneyTransferUseCase();
+        var moneyTransferUseCase = new MoneyTransferUseCase(account, account);
 
         var exception = expectThrows(
             IllegalArgumentException.class,
-            () -> moneyTransferUseCase.transferFromSourceToDestination(account, account, 50.0));
+            () -> moneyTransferUseCase.transferFromSourceToDestination(50.0));
 
         assertEquals(exception.getMessage(), "Source and destination can't be the same.");
     }

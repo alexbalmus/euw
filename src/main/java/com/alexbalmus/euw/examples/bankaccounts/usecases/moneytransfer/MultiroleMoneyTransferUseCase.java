@@ -10,20 +10,23 @@ import com.alexbalmus.euw.examples.bankaccounts.entities.Account;
 
 public class MultiroleMoneyTransferUseCase
 {
+    private final Multirole<Account> wSource;
+    private final Multirole<Account> wDestination;
+    private final Multirole<Account> wTemp;
+
+    public MultiroleMoneyTransferUseCase(final Account source, final Account destination, final Account temp)
+    {
+        wSource      = wrap(source);
+        wDestination = wrap(destination);
+        wTemp        = wrap(temp);
+    }
+
     /**
      * Transfer amount from source to destination while traversing a temporary account
-     * @param source the source account
-     * @param destination the destination account
-     * @param temp the temporary account
      * @param amount the amount to transfer
      */
-    public void transferFromSourceToDestinationViaTemporary(
-        final Account source, final Account destination, final Account temp, final Double amount)
+    public void transferFromSourceToDestinationViaTemporary(final Double amount)
     {
-        var wSource      = wrap(source);
-        var wDestination = wrap(destination);
-        var wTemp        = wrap(temp);
-
         transferMoney(
             wSource,
             wTemp,
@@ -55,12 +58,13 @@ public class MultiroleMoneyTransferUseCase
             "Source and destination can't be the same.");
 
         //--- Use case roles setup:
-        var rSource      = wSource.assignRole(Account_Source.class);
-        var rDestination = wDestination.assignRole(Account_Destination.class);
+        Account_Source      rSource      = wSource.assignRole(Account_Source.class);
+        Account_Destination rDestination = wDestination.assignRole(Account_Destination.class);
 
         if (wPreviousDestination != null)
         {
-            var rPreviousDestination = wPreviousDestination.assignRole(Account_Destination.class);
+            Account_Destination rPreviousDestination =
+                wPreviousDestination.assignRole(Account_Destination.class);
 
             // Identity check: it's the same wrapper even though different roles were played in different installments:
             Validate.isTrue(rSource == rPreviousDestination,

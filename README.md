@@ -4,9 +4,6 @@ A role-based, "contextual" OOP approach for Java inspired by ideas from DCI (Dat
 If you are new to DCI, then it's recommended you read the following article first:
 https://fulloo.info/Documents/ArtimaDCI.html
 
-If you are new to Eclipse Object Teams, then it's recommended you read the documentation here:
-https://www.eclipse.org/objectteams/documentation.php
-
 Running the example:
 - tested with JDK 25 & Maven 3.9.15
 - building: mvn package
@@ -146,25 +143,36 @@ expose the behavior that corresponds to the chosen role.
 The use case object gathers the participating objects, assigns the necessary roles to them 
 and then kicks off the execution:
 
-[MoneyTransferUseCase#transferFromSourceToDestination](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java#L15):
+[MoneyTransferUseCase](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCase.java):
 
 ```java
-public void transferFromSourceToDestination(
-    final Account source, final Account destination, final Double amount)
+public class MoneyTransferUseCase
 {
-    //--- Use case roles setup:
-    var rSource      = wrap(source).assignRole(Account_Source.class);
-    var rDestination = wrap(destination).assignRole(Account_Destination.class);
+    private final Multirole<Account> wSource;
+    private final Multirole<Account> wDestination;
 
-    //--- Interaction:
-    rSource.transfer(amount, rDestination);
+    public MoneyTransferUseCase(Account source, Account destination)
+    {
+        wSource = wrap(source);
+        wDestination = wrap(destination);
+    }
+
+    public void transferFromSourceToDestination(final Double amount)
+    {
+        //--- Use case roles setup:
+        var rSource      = wSource.assignRole(Account_Source.class);
+        var rDestination = wDestination.assignRole(Account_Destination.class);
+
+        //--- Interaction:
+        rSource.transfer(amount, rDestination);
+    }
 }
 ```
 
 Notice how a particular role is selected using the ".assignRole()" method:
 
 ```java
-    var rSource = wrap(source).assignRole(Account_Source.class);
+    var rSource = wSource.assignRole(Account_Source.class);
 ```
 
 Also see [MoneyTransferUseCaseTest#testIdentity](https://github.com/alexbalmus/euw/blob/main/src/test/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MoneyTransferUseCaseTest.java#L51)

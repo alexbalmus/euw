@@ -33,10 +33,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var simpleMoneyTransferUseCase = new MoneyTransferUseCase();
+        var simpleMoneyTransferUseCase = new MoneyTransferUseCase(source, destination);
 
         System.out.println("Transferring 50 from Source to Destination.");
-        simpleMoneyTransferUseCase.transferFromSourceToDestination(source, destination, 50.0);
+        simpleMoneyTransferUseCase.transferFromSourceToDestination(50.0);
 
         return Pair.of(source.getId(), destination.getId());
     }
@@ -65,10 +65,10 @@ public class BankAccountsExample
         accountsRepository.save(destination);
         System.out.println("Destination account: " + destination.getBalance());
 
-        var multiroleMoneyTransferUseCase = new MultiroleMoneyTransferUseCase();
+        var multiroleMoneyTransferUseCase = new MultiroleMoneyTransferUseCase(source, destination, intermediary);
 
         System.out.println("Transferring 50 from Source to Destination via Intermediary.");
-        multiroleMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
+        multiroleMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(50.0);
 
         return Triple.of(source.getId(), intermediary.getId(), destination.getId());
     }

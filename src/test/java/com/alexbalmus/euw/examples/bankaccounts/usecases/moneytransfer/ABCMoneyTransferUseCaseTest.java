@@ -15,9 +15,9 @@ public class ABCMoneyTransferUseCaseTest
         var intermediary = new Account(2L, 0.0);
         var destination = new Account(3L, 200.0);
 
-        var abcMoneyTransferUseCase = new MultiroleMoneyTransferUseCase();
+        var abcMoneyTransferUseCase = new MultiroleMoneyTransferUseCase(source, destination, intermediary);
 
-        abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(source, destination, intermediary, 50.0);
+        abcMoneyTransferUseCase.transferFromSourceToDestinationViaTemporary(50.0);
 
         assertEquals(source.getBalance(), 50.0);
         assertEquals(intermediary.getBalance(), 0.0);
