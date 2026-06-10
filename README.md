@@ -153,7 +153,7 @@ public class MoneyTransferUseCase
 
     public MoneyTransferUseCase(Account source, Account destination)
     {
-        wSource = wrap(source);
+        wSource      = wrap(source);
         wDestination = wrap(destination);
     }
 
