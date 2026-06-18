@@ -10,6 +10,6 @@ interface Account_Destination extends Role<Account>
 {
     default void receive(final Double amount)
     {
-        unwrap().increaseBalanceBy(amount);
+        unwrap().deposit(amount);
     }
 }

@@ -41,13 +41,13 @@ public class Account
     {
     }
 
-    public void increaseBalanceBy(final Double amount)
+    public void deposit(final Double amount)
     {
         validateAmount(amount);
         balance += amount;
     }
 
-    public void decreaseBalanceBy(final Double amount)
+    public void withdraw(final Double amount)
     {
         validateAmount(amount);
         if (balance < amount)

@@ -97,7 +97,7 @@ public class MoneyTransferUseCaseTest
 
         var exception = expectThrows(
             IllegalArgumentException.class,
-            () -> account.decreaseBalanceBy(-50.0));
+            () -> account.withdraw(-50.0));
 
         assertEquals(exception.getMessage(), Account.INVALID_AMOUNT);
     }

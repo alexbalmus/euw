@@ -15,7 +15,7 @@ interface Account_Source extends Role<Account>
             throw new IllegalArgumentException("Source and destination can't be the same.");
         }
 
-        unwrap().decreaseBalanceBy(amount);
+        unwrap().withdraw(amount);
         destination.receive(amount);
     }
 }

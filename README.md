@@ -99,7 +99,7 @@ interface Account_Source extends Role<Account>
             throw new IllegalArgumentException("Source and destination can't be the same.");
         }
 
-        unwrap().decreaseBalanceBy(amount);
+        unwrap().withdraw(amount);
         destination.receive(amount);
     }
 }
@@ -112,7 +112,7 @@ interface Account_Destination extends Role<Account>
 {
     default void receive(final Double amount)
     {
-        unwrap().increaseBalanceBy(amount);
+        unwrap().deposit(amount);
     }
 }
 ```
