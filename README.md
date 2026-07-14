@@ -1,13 +1,14 @@
 # Entity - UseCase - Wrapper
-A role-based, "contextual" OOP approach for Java inspired by ideas from DCI (Data-Context-Interaction) and Eclipse Object Teams.
-
-If you are new to DCI, then it's recommended you read the following article first:
-https://fulloo.info/Documents/ArtimaDCI.html
+A role-based, "contextual" OOP approach for Java inspired by ideas from DCI (Data-Context-Interaction).
 
 Running the example:
 - tested with JDK 25 & Maven 3.9.15
 - building: mvn package
 - running: mvn spring-boot:run
+
+DCI is the work of Trygve Reenskaug (the originator) and Jim Coplien (leading contributor).
+If you are new to DCI, then it's recommended you read the following article first:
+https://fulloo.info/Documents/ArtimaDCI.html
 
 EUW (Entity - UseCase - Wrapper) was born out of frustration with the fact that true DCI can't be implemented in plain Java.
 
@@ -27,7 +28,7 @@ https://fulloo.info/doku.php?id=can_i_use_dci_in_java
 One possible solution is the use of extension methods using a third party library like Lombok, which was explored here:
 https://github.com/alexbalmus/dci_java_playground
 
-In this project though, we take a "rebellious" approach: instead of avoiding the wrapper, we aim to embrace it in an open, explicit and safe way.
+In this project though, a "rebellious" approach is taken: instead of avoiding the wrapper, it is embraced in an open, explicit and safe way.
 
 Measures taken to alleviate the issues related to using a wrapper (which are usually the source of criticism):
 - it's just a wrapper, not a Decorator, i.e. there's no common interface for the entity and the wrapper to implement
@@ -38,9 +39,11 @@ when required; this way the wrapper will also act as an object representative, i
 entity-wrapper correspondence for the lifetime of the use case execution, regardless of the different roles that 
 might be enabled for that wrapper in different installments of the same use case execution
 
-Mental model: I like to think of the wrapper as some sort of vehicle, or another type of machine that encloses its subject; 
-for example, on a construction site the workers will perform their roles with the help of specialized vehicles that *wrap* them;
-So, while true DCI allows to actually become a cyborg, this approach is more modest in its goals, but could still be useful enough.
+Mental model for the multi-role wrapper:
+I like to think of the wrapper as some sort of vehicle, or another type of machine that encloses its subject;
+for example, on a construction site the workers will perform their activities with the help of vehicles that *wrap* them;
+the same vehicle may be capable of performing multiple operations, but at a given time it will only be used for one of them;
+the idea is the worker does not need to change vehicles to perform different operations.
 
 Implementation:
 
@@ -188,6 +191,7 @@ with the underlying entity to create the synergy that mimics the idea of an obje
 
 Also see [MultiroleMoneyTransferUseCase](https://github.com/alexbalmus/euw/blob/main/src/main/java/com/alexbalmus/euw/examples/bankaccounts/usecases/moneytransfer/MultiroleMoneyTransferUseCase.java) for an example of how the same wrapper can play different roles.
 
+
 References:
 
 https://fulloo.info/ 
@@ -195,7 +199,5 @@ https://fulloo.info/
 https://fulloo.info/Documents/ArtimaDCI.html
 
 https://en.wikipedia.org/wiki/Data,_context_and_interaction
-
-https://www.eclipse.org/objectteams/documentation.php
 
 https://gist.github.com/kt3k/8312661
